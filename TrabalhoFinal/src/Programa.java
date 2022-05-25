@@ -10,10 +10,14 @@ import repository.ProprietarioRepository;
 
 import java.sql.Statement;
 
+//Marcelo
 public class Programa {
 
 	public static void main(String[] args) throws SQLException {
-		
+		work();
+	}
+	
+	public static void work() {
 		int opcao;		
 	    Scanner sc = new Scanner(System.in);
 		
@@ -21,7 +25,7 @@ public class Programa {
 		System.out.println("||||||||||||||||||| ** SEJA BEM VINDO AO SEU PET ** ||||||||||||||||||||||");
 		System.out.println("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
 		
-		System.out.println("\n");
+		System.out.println("");
 
 		opcao = escolheOpcaoPossuiCadastro(); 
 		
@@ -33,7 +37,7 @@ public class Programa {
   			
  
   			
-  		} else {
+  		} else if(opcao == 2) {
   			opcao = escolheOpcaoCadastro();
   			
   			if(opcao == 1) {
@@ -48,26 +52,27 @@ public class Programa {
   				proprietario.nome = nome;
   				proprietario.cpf = cpf;
   				
-  				System.out.println("\n");
-  				
   				boolean insert = new ProprietarioRepository().Incluir(proprietario);
   				
-  				System.out.println(insert);
+  				System.out.println("");
+  				
   				if(insert) {
   					System.out.println("INSERIDO COM SUCESSO!");
   				} else {
   					System.out.println("ERRO! Tente novamente.");
   				}
   				
+  				System.out.println("");
+  				
   				opcao = escolheOpcaoPossuiCadastro();
   				
   				//TODO: Parei aqui
   				
   			} else if (opcao == 2) {
-  				System.out.println("OBRIGADO POR ESCOLHER NOSSO PETSHOP VOLTE SEMPRE");
+  				System.out.println("\n** OBRIGADO POR ESCOLHER NOSSO PETSHOP VOLTE SEMPRE **\n2");
+  				work();
   			}
   		}
-		
 	}
 	
 	public static int escolheOpcaoPossuiCadastro() {
