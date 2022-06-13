@@ -3,8 +3,10 @@ import java.util.List;
 import java.util.Scanner;
 
 import Service.EscolhaOpcao;
+import model.Agenda;
 import model.Pet;
 import model.Proprietario;
+import repository.AgendaRepository;
 import repository.PetRepository;
 import repository.ProprietarioRepository;
 
@@ -100,7 +102,28 @@ public class Programa {
 				
 			} else {
 				//TODO:
-				//Criar agenda para consulta, banho e tosa
+				System.out.println("");
+				
+				for (int i = 0; i < pets.size(); i++) {
+					System.out.println("id: " + pets.get(i).id + " Nome: " + pets.get(i).nome + " Idade: " + pets.get(i).idade + " Porte: " + pets.get(i).porte);
+				}
+				
+				System.out.println("");
+				System.out.println("DIGITE UM ID PARA AGENDAR.");
+				int idPet = Integer.parseInt(scanner.nextLine());
+
+				Pet pp = PetRepository.BuscarPetPorId(idPet, proprietario.id);
+				
+				if(pp == null) {
+					System.out.println("OPÇÃO INVALIDA, TENTE NOVAMENTE!");
+					opcaoProprietario(scanner, proprietario);
+				}
+				
+				boolean createAgenda = CadastroAgenda(scanner, proprietario, pp.id);
+				
+				if(createAgenda) {
+					opcaoProprietario(scanner, proprietario);
+				}
 			}
 		} else if (opcao == 2) {
 			boolean cadastroPet = CadastroPet(scanner, proprietario);
@@ -295,6 +318,37 @@ public class Programa {
 			
 		if(insert) {
 			System.out.println("INSERIDO COM SUCESSO!");
+		} else {
+			System.out.println("ERRO! Tente novamente.");
+		}
+		
+		return insert;
+	}
+	
+	private static boolean CadastroAgenda(Scanner sc, Proprietario prop, int petId) {
+		System.out.println("");
+		System.out.println("Informe o Dia/Mês/Ano (01/01/1999): ");
+		String data = sc.nextLine();
+		
+		System.out.println("Informe a hora (13:30): ");
+		String hora = sc.nextLine();
+		
+		System.out.println("Informe o idade do Pet: ");
+		String idade = sc.nextLine();
+			
+		Agenda agenda = new Agenda();
+		agenda.dia = data;
+		agenda.hora = hora;
+		agenda.petId = petId;
+		agenda.proprietarioId = prop.id;
+		agenda.nomeProprietario = prop.nome;
+			
+		boolean insert = AgendaRepository.Incluir(agenda);
+			
+		System.out.println("");
+			
+		if(insert) {
+			System.out.println("AGENDADO COM SUCESSO!");
 		} else {
 			System.out.println("ERRO! Tente novamente.");
 		}
