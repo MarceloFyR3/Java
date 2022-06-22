@@ -1,16 +1,15 @@
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Scanner;
 
-import model.Constantes;
+import Service.EscolhaOpcao;
+import model.Agenda;
+import model.Pet;
 import model.Proprietario;
+import repository.AgendaRepository;
+import repository.PetRepository;
 import repository.ProprietarioRepository;
 
-import java.sql.Statement;
-
-//Marcelo
 public class Programa {
 
 	public static void main(String[] args) throws SQLException {
@@ -18,8 +17,8 @@ public class Programa {
 	}
 	
 	public static void work() {
-		int opcao;		
-	    Scanner sc = new Scanner(System.in);
+		int opcao;	
+		var scanner = new Scanner(System.in);
 		
 		System.out.println("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
 		System.out.println("||||||||||||||||||| ** SEJA BEM VINDO AO SEU PET ** ||||||||||||||||||||||");
@@ -27,156 +26,373 @@ public class Programa {
 		
 		System.out.println("");
 
-		opcao = escolheOpcaoPossuiCadastro(); 
+		opcao = EscolhaOpcao.escolheOpcaoPossuiCadastro(scanner); 
 		
-		if(opcao == 1) {
-  			
-  			System.out.println("Digite seu CPF: ");
-  			String cpf = sc.nextLine();
-  			System.out.println("Você digitou: " + cpf);
-  			
- 
-  			
+		if(opcao == 1) {			
+			jaCadastrado(scanner);		
   		} else if(opcao == 2) {
-  			opcao = escolheOpcaoCadastro();
-  			
-  			if(opcao == 1) {
-
-  				System.out.println("Informe seu nome: ");
-  	  			String nome = sc.nextLine();
-  	  			
-  	  			System.out.println("Informe seu CPF: ");
-  	  			String cpf = sc.nextLine();
-  	  			
-  				Proprietario proprietario = new Proprietario();
-  				proprietario.nome = nome;
-  				proprietario.cpf = cpf;
-  				
-  				boolean insert = new ProprietarioRepository().Incluir(proprietario);
-  				
-  				System.out.println("");
-  				
-  				if(insert) {
-  					System.out.println("INSERIDO COM SUCESSO!");
-  				} else {
-  					System.out.println("ERRO! Tente novamente.");
-  				}
-  				
-  				System.out.println("");
-  				
-  				opcao = escolheOpcaoPossuiCadastro();
-  				
-  				//TODO: Parei aqui
-  				
-  			} else if (opcao == 2) {
-  				System.out.println("\n** OBRIGADO POR ESCOLHER NOSSO PETSHOP VOLTE SEMPRE **\n2");
-  				work();
-  			}
+  			naoCadastrado(scanner);
   		}
 	}
+
+	private static Proprietario procurarProprietario(String cpf) {	
+		var proprietario = ProprietarioRepository.ConsultarPorCPF(cpf);
 	
-	public static int escolheOpcaoPossuiCadastro() {
-	    int opcao;
-	    boolean erro = true;
-	    var scanner = new Scanner(System.in);
-	    
-	    do {
-	      try {
-	    	System.out.println("** VOÇÊ JÁ POSSUI CADASTRO? **");
-	    	System.out.println("( 1 ) - SIM");
-	    	System.out.println("( 2 ) - NÃO");
-	    	System.out.println("( 0 ) - Sair do Programa a qualquer momento");
-	        System.out.printf("Digite uma opcão: ");
-	        opcao = Integer.parseInt(scanner.nextLine());
-	        
-	        if(opcao == 0) {
-	          System.out.println("\nO programa será finalizado");
-	          erro = false;
-	        }
-	        if(opcao < 3 && opcao > 0) {
-	          erro = false;
-	        }
-	        if(opcao > 2) {
-	          System.out.println("Escolha um número entre 0 e 2\n");
-	        }
-	      }
-	      catch(NumberFormatException e) {
-	    	  System.out.println("Escolha um número entre 0 e 2\n");
-	    	  opcao = 0;
-	      }
-	    } while (erro);
-	    return opcao;
-	}
-	
-	public static int escolheOpcaoCadastro() {
-		System.out.println("\n");
-	    int opcao;
-	    boolean erro = true;
-	    Scanner sc = new Scanner(System.in);
-	    
-	    do {
-	      try {
-	    	System.out.println("** DESEJA CADASTRAR? **");
-	    	System.out.println("( 1 ) - SIM");
-	    	System.out.println("( 2 ) - NÃO");
-	        System.out.println("( 0 ) - Sair do Programa a qualquer momento");
-	        System.out.printf("Digite uma opcão: ");
-	        opcao = Integer.parseInt(sc.nextLine());
-	        
-	        if(opcao == 0) {
-	          System.out.println("\nO programa será finalizado");
-	          erro = false;
-	        }
-	        if(opcao < 3 && opcao > 0) {
-	          erro = false;
-	        }
-	        if(opcao > 2) {
-	          System.out.println("Escolha um número entre 0 e 2\n");
-	        }
-	      }
-	      catch(NumberFormatException e) {
-	    	  System.out.println("Escolha um número entre 0 e 2\n");
-	    	  opcao = 0;
-	      }
-	    } while (erro);
-	    return opcao;
-	}
-	
-	public static void ListarPet() throws SQLException {
-		
-		String  url = "jdbc:sqlite:C:\\ProgramFacul\\Java\\TrabalhoFinal\\db\\petshop.db";
-		
-		Connection conexao = DriverManager.getConnection(url);
-		
-		// 2. Criar e executar da consulta.
-		Statement comando = conexao.createStatement();		
-		ResultSet resultado = comando.executeQuery(new Constantes().SELECT_PET);
-		
-		while (resultado.next()) {
-			int id = resultado.getInt(1);
-			String nome = resultado.getString(2);
-			String porte = resultado.getString(3);
-			int idade = resultado.getInt(4);
-			
-			System.out.println("Id: " + id + " | Nome: "  + nome + " | Porte: " + porte + " | Idade: " + idade);
-		}
-		
-	}
-	
-	public static void IncluirPet() throws SQLException {
-		
-		String  url = "jdbc:sqlite:C:\\ProgramFacul\\Java\\TrabalhoFinal\\db\\petshop.db";
-		
-		Connection conexao = DriverManager.getConnection(url);
-		
-		// 2. Criar e executar da consulta.
-		Statement comando = conexao.createStatement();
-		boolean insert = comando.execute(new Constantes().CREATE_PET);
-		
-		if(insert) {
-			System.out.println("Inserido com sucesso!");
-		}
-		
+		return proprietario;
 	}
 
+	private static void jaCadastrado(Scanner scanner) {
+		int opcao;
+		
+		try (Scanner sc = new Scanner(System.in)) {
+			System.out.println("");
+			System.out.println("Digite seu CPF: ");
+			String cpf = sc.nextLine();	
+				
+			var proprietario = procurarProprietario(cpf);
+			
+			if(proprietario.nome == null) {
+					
+				 opcao = EscolhaOpcao.escolheOpcaoCadastroNaoEncontrado(scanner);
+				
+				if(opcao == 1) {				
+					jaCadastrado(scanner);					
+				} else if (opcao == 2 ){
+					work();
+				}
+				
+			} else {
+				System.out.println("");
+				System.out.println("Olá " + proprietario.nome);
+				
+				//Todo: Criar escolha para listar(Selecionar) Pet ou cadastrar 
+				
+				opcaoProprietario(scanner, proprietario);
+					
+				
+			}
+		} catch (Exception e) {
+			System.out.println("\n** Erro SCANNER **\n" + e.getMessage());
+		}
+	}
+
+	private static void opcaoProprietario(Scanner scanner, Proprietario proprietario) {
+		
+		int opcao = EscolhaOpcao.escolheOpcaoProprietario(scanner);
+		
+		if(opcao == 1) {
+		
+			List<Pet> pets = PetRepository.BuscarPetsPorProprietario(proprietario.id);
+			
+			if(pets.size() == 0) {
+				System.out.println("");
+				opcao = EscolhaOpcao.escolheOpcaoSemPets(scanner);
+				
+				if(opcao == 1) {
+					boolean cadastroPet = CadastroPet(scanner, proprietario);
+					
+					if(cadastroPet) {
+						System.out.println("");
+						opcaoProprietario(scanner, proprietario);
+					}
+					
+				} else if(opcao == 2) {
+					opcaoProprietario(scanner, proprietario);
+				}				
+				
+			} else {
+				//TODO:
+				System.out.println("");
+				
+				for (int i = 0; i < pets.size(); i++) {
+					System.out.println("id: " + pets.get(i).id + " Nome: " + pets.get(i).nome + " Idade: " + pets.get(i).idade + " Porte: " + pets.get(i).porte);
+				}
+				
+				System.out.println("");
+				System.out.println("DIGITE UM ID PARA AGENDAR.");
+				int idPet = Integer.parseInt(scanner.nextLine());
+
+				Pet pp = PetRepository.BuscarPetPorId(idPet, proprietario.id);
+				
+				if(pp == null) {
+					System.out.println("OPÇÃO INVALIDA, TENTE NOVAMENTE!");
+					opcaoProprietario(scanner, proprietario);
+				}
+				
+				boolean createAgenda = CadastroAgenda(scanner, proprietario, pp.id);
+				
+				if(createAgenda) {
+					opcaoProprietario(scanner, proprietario);
+				}
+			}
+		} else if (opcao == 2) {
+			boolean cadastroPet = CadastroPet(scanner, proprietario);
+			
+			if(cadastroPet) {
+				System.out.println("");
+				opcaoProprietario(scanner, proprietario);
+			}			
+		} else if (opcao == 3) {
+			List<Pet> pets = PetRepository.BuscarPetsPorProprietario(proprietario.id);
+			
+			if(pets == null) {
+				System.out.println("");
+				opcao = EscolhaOpcao.escolheOpcaoSemPets(scanner);
+				
+				if(opcao == 1) {
+					boolean cadastroPet = CadastroPet(scanner, proprietario);
+					
+					if(cadastroPet) {
+						System.out.println("");
+						opcaoProprietario(scanner, proprietario);
+					}
+					
+				} else if(opcao == 2) {
+					opcaoProprietario(scanner, proprietario);
+				}				
+				
+			} else {
+				System.out.println("");
+				
+				for (int i = 0; i < pets.size(); i++) {
+					System.out.println("id: " + pets.get(i).id + " Nome: " + pets.get(i).nome + " Idade: " + pets.get(i).idade + " Porte: " + pets.get(i).porte);
+				}
+				
+				opcaoProprietario(scanner, proprietario);
+			}
+		} else if (opcao == 4) {
+			
+			List<Pet> pets = PetRepository.BuscarPetsPorProprietario(proprietario.id);
+			
+			if(pets == null) {
+				
+				opcao = EscolhaOpcao.escolheOpcaoSemPets(scanner);
+				
+				if(opcao == 1) {
+					boolean cadastroPet = CadastroPet(scanner, proprietario);
+					
+					if(cadastroPet) {
+						System.out.println("");
+						opcaoProprietario(scanner, proprietario);
+					}
+					
+				} else if(opcao == 2) {
+					opcaoProprietario(scanner, proprietario);
+				}	
+			} else {
+				
+				System.out.println("");
+				
+				for (int i = 0; i < pets.size(); i++) {
+					System.out.println("id: " + pets.get(i).id + " Nome: " + pets.get(i).nome + " Idade: " + pets.get(i).idade + " Porte: " + pets.get(i).porte);
+				}
+				System.out.println("");
+				System.out.println("DIGITE UM ID PARA EDITAR.");
+				int idPet = Integer.parseInt(scanner.nextLine());
+
+				Pet pp = PetRepository.BuscarPetPorId(idPet, proprietario.id);
+				
+				if(pp == null) {
+					System.out.println("OPÇÃO INVALIDA, TENTE NOVAMENTE!");
+					opcaoProprietario(scanner, proprietario);
+				}
+				
+				boolean editPet = EditarPet(scanner, proprietario, pp);
+				
+				if(editPet) {
+					opcaoProprietario(scanner, proprietario);
+				}
+			}
+		} else if (opcao == 5) {
+			
+			List<Pet> pets = PetRepository.BuscarPetsPorProprietario(proprietario.id);
+			
+			if(pets == null) {
+				
+				opcao = EscolhaOpcao.escolheOpcaoSemPets(scanner);
+				
+				if(opcao == 1) {
+					boolean cadastroPet = CadastroPet(scanner, proprietario);
+					
+					if(cadastroPet) {
+						System.out.println("");
+						opcaoProprietario(scanner, proprietario);
+					}
+					
+				} else if(opcao == 2) {
+					opcaoProprietario(scanner, proprietario);
+				}	
+			} else {
+				
+				System.out.println("");
+				
+				for (int i = 0; i < pets.size(); i++) {
+					System.out.println("id: " + pets.get(i).id + " Nome: " + pets.get(i).nome + " Idade: " + pets.get(i).idade + " Porte: " + pets.get(i).porte);
+				}
+				System.out.println("");
+				System.out.println("DIGITE UM ID PARA EXCLUIR.");
+				int idPet = Integer.parseInt(scanner.nextLine());
+
+				Pet pp = PetRepository.BuscarPetPorId(idPet, proprietario.id);
+				
+				if(pp == null) {
+					System.out.println("OPÇÃO INVALIDA, TENTE NOVAMENTE!");
+					opcaoProprietario(scanner, proprietario);
+				}
+				
+				boolean exclude = PetRepository.Excluir(pp.id);
+				
+				System.out.println("");
+					
+				if(exclude) {
+					System.out.println("APAGADO COM SUCESSO!");
+					opcaoProprietario(scanner, proprietario);
+				} else {
+					System.out.println("ERRO! Tente novamente.");
+				}
+			}
+		}
+	}
+	
+	private static boolean EditarPet(Scanner sc, Proprietario prop, Pet pet) {
+		System.out.println("");
+		System.out.println("Atualizar o nome " + pet.nome + " para: ");
+		String nome = sc.nextLine();
+		
+		System.out.println("Atualizar o porte " + pet.porte + " para: ");
+		String porte = sc.nextLine();
+		
+		System.out.println("Atualizar a idade " + pet.idade + " para: ");
+		String idade = sc.nextLine();
+		
+		if(nome.isEmpty()) {
+			nome = pet.nome;
+		}
+		
+		if(porte.isEmpty()) {
+			porte = pet.porte;
+		}
+		
+		if(idade.isEmpty()) {
+			idade = Integer.toString(pet.idade);
+		}
+			
+		pet.nome = nome;
+		pet.porte = porte;
+		pet.idade = Integer.parseInt(idade);
+		pet.proprietarioId = prop.id;
+			
+		boolean insert = PetRepository.Editar(pet);
+			
+		System.out.println("");
+			
+		if(insert) {
+			System.out.println("EDITADO COM SUCESSO!");
+		} else {
+			System.out.println("ERRO! Tente novamente.");
+		}
+		
+		return insert;
+	}
+	
+	private static boolean CadastroPet(Scanner sc, Proprietario prop) {
+		System.out.println("");
+		System.out.println("Informe o nome do Pet: ");
+		String nome = sc.nextLine();
+		
+		System.out.println("Informe o porte do Pet: ");
+		String porte = sc.nextLine();
+		
+		System.out.println("Informe o idade do Pet: ");
+		String idade = sc.nextLine();
+			
+		Pet pet = new Pet();
+		pet.nome = nome;
+		pet.porte = porte;
+		pet.idade = Integer.parseInt(idade);
+		pet.proprietarioId = prop.id;
+			
+		boolean insert = PetRepository.Incluir(pet);
+			
+		System.out.println("");
+			
+		if(insert) {
+			System.out.println("INSERIDO COM SUCESSO!");
+		} else {
+			System.out.println("ERRO! Tente novamente.");
+		}
+		
+		return insert;
+	}
+	
+	private static boolean CadastroAgenda(Scanner sc, Proprietario prop, int petId) {
+		System.out.println("");
+		System.out.println("Informe o Dia/Mês/Ano (01/01/1999): ");
+		String data = sc.nextLine();
+		
+		System.out.println("Informe a hora (13:30): ");
+		String hora = sc.nextLine();
+		
+		System.out.println("Informe o idade do Pet: ");
+		String idade = sc.nextLine();
+			
+		Agenda agenda = new Agenda();
+		agenda.dia = data;
+		agenda.hora = hora;
+		agenda.petId = petId;
+		agenda.proprietarioId = prop.id;
+		agenda.nomeProprietario = prop.nome;
+			
+		boolean insert = AgendaRepository.Incluir(agenda);
+			
+		System.out.println("");
+			
+		if(insert) {
+			System.out.println("AGENDADO COM SUCESSO!");
+		} else {
+			System.out.println("ERRO! Tente novamente.");
+		}
+		
+		return insert;
+	}
+
+	private static void naoCadastrado(Scanner sc) {
+		int opcao;		
+	    try {
+			opcao = EscolhaOpcao.escolheOpcaoCadastro(sc);
+				
+			if(opcao == 1) {
+				System.out.println("Informe seu nome: ");
+				String nome = sc.nextLine();
+				
+				System.out.println("Informe seu CPF: ");
+				String cpf = sc.nextLine();
+					
+				Proprietario proprietario = new Proprietario();
+				proprietario.nome = nome;
+				proprietario.cpf = cpf;
+					
+				boolean insert = ProprietarioRepository.Incluir(proprietario);
+					
+				System.out.println("");
+					
+				if(insert) {
+					System.out.println("INSERIDO COM SUCESSO!");
+				} else {
+					System.out.println("ERRO! Tente novamente.");
+				}
+					
+				System.out.println("");
+					
+				opcao = EscolhaOpcao.escolheOpcaoPossuiCadastro(sc);
+					
+			} else if (opcao == 2) {
+				System.out.println("\n** OBRIGADO POR ESCOLHER NOSSO PETSHOP VOLTE SEMPRE **\n");
+				work();
+			}
+		} catch (Exception e) {
+			System.out.println("\n** Erro SCANNER **\n" + e.getMessage());
+		}
+	}
+	
 }
